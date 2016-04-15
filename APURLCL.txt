@@ -1,0 +1,25 @@
+// ==UserScript==
+// @name         AP URL Code List
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @author       You
+// @match        *://dragcave.net/abandoned
+// @grant        none
+// ==/UserScript==
+/* jshint -W097 */
+'use strict';
+
+var ap = document.getElementsByClassName("ap");
+if (ap.length === 0)
+    location.reload();
+ap = ap[0].children[0]; // Tbody of ap
+
+for (var i=0; i<5; i+=1)
+{
+    var row = ap.children[i];
+    for (var j=0; j<6; j+=1)
+    {
+        var x = row.children[j].innerHTML.substring(20, 25);
+        row.children[j].childNodes[2].nodeValue = x;
+    }
+}

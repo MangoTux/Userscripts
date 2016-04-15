@@ -1,0 +1,26 @@
+// ==UserScript==
+// @name         AP Missed Dragon Lineage Viewer
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @author       You
+// @match        *://dragcave.net/abandoned/*
+// @grant        none
+// ==/UserScript==
+/* jshint -W097 */
+'use strict';
+
+var mid = document.getElementById("middle");
+
+if (mid.children[0].innerHTML.indexOf("overburdened") != -1 || mid.innerHTML.indexOf("might") != -1)
+{
+    var url = document.location.href;
+    var lastIndex = url.indexOf(".net/");
+    var url1 = url.substring(0, (lastIndex+5)); //"http://dragcave.net/"
+    var url2 = url.substring(lastIndex+14); // Everything after abandoned
+    open(url1+"lineage"+url2); // View the lineage to brag about what you missed.
+}
+
+function open(url )
+{
+  document.location.href = url;
+}

@@ -1,0 +1,19 @@
+// ==UserScript==
+// @name         User page code
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  try to take over the world!
+// @author       You
+// @match        *://dragcave.net/user/*
+// @grant        none
+// ==/UserScript==
+/* jshint -W097 */
+'use strict';
+
+var x = document.getElementById("udragonlist").children[0];
+x.children[0].innerHTML = x.children[0].innerHTML + "<th>Code</th>";
+
+for (var i=1; i<x.children.length; i+=1)
+{
+    x.children[i].innerHTML = x.children[i].innerHTML + "<td>" + x.children[i].children[0].innerHTML.substring(15,20)+ "</td>";
+}

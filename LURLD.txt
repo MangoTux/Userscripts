@@ -1,0 +1,20 @@
+// ==UserScript==
+// @name         Location URL Display
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  try to take over the world!
+// @author       You
+// @match        *://dragcave.net/locations/*
+// @grant        none
+// ==/UserScript==
+/* jshint -W097 */
+'use strict';
+
+var eggList = document.getElementsByClassName("eggs")[0];
+
+for (var i=0; i<3; i+=1)
+{
+    var current = eggList.children[i];
+    var url = current.children[0].href.substring(24);
+    current.innerHTML = url + "<br>"+current.innerHTML;
+}

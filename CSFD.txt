@@ -1,0 +1,147 @@
+// ==UserScript==
+// @name         Custom selector for your dragons
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @author       You
+// @match        *://dragcave.net/dragon*
+// @grant        none
+// ==/UserScript==
+/* jshint -W097 */
+'use strict';
+
+//Options List: URL Code (default), Z Code, Gender rename? CB(?)
+var optionsList = document.getElementById("sort").parentElement;
+var dragonList = document.getElementById("dragonlist");
+
+var dragonListBody = dragonList.children[1];
+// The head of the table should append a 'Custom' column
+dragonList.children[0].children[0].innerHTML += "<th>Custom</th>";
+
+
+function addSelector()
+{
+    var options = "<div style=\"float:right\">" + "Display Custom: " + "<select id=\"disp\">" + "<option value=\"0\">URL Code</option>" + "<option value=\"1\">Special URL</option>" + "<option value=\"2\">Gender Rename</option>" + "<option value=\"3\">Cave Born (slow)</option>" + "</select" + "</div>";
+    optionsList.outerHTML = options;//+optionsList.children[2].outerHTML + "<br>"; //Tack on the third selector
+}
+
+//Replaces the text at a given index i with the string s
+function replaceText(i, s)
+{
+    dragonListBody.children[i].getElementsByClassName("custom")[0].innerHTML = s;
+}
+
+// Builds the 'custom' column for use by selectors
+//--WORKING
+function buildColumn()
+{
+    for (var i=0; i<dragonListBody.children.length; i+=1)
+    {
+        dragonListBody.children[i].innerHTML += "<td class=\"custom\"></td>";
+    }
+}
+
+// On the custom pane, display the URL codes of each dragon
+//--WORKING
+function displayCode()
+{
+    for (var i=0; i<dragonListBody.children.length; i+=1)
+    {
+        // Place the code in the 'custom' tab
+        if (dragonListBody.children[i].children[0].children[0].href.indexOf("https") == -1)
+            replaceText(i, dragonListBody.children[i].children[0].children[0].href.substring(25));
+        else
+            replaceText(i, dragonListBody.children[i].children[0].children[0].href.substring(26));
+    }
+}
+
+// On the custom pane, display certain text if the URL matches a criteria
+//--WORKING, improve to match more codes
+function displaySpecialCode()
+{
+    for (var i=0; i<dragonListBody.children.length; i+=1)
+    {
+        var name;
+        if (dragonListBody.children[i].children[0].children[0].href.indexOf("https") == -1)
+            name = dragonListBody.children[i].children[0].children[0].href.substring(25).toLowerCase();
+        else
+            name = dragonListBody.children[i].children[0].children[0].href.substring(26).toLowerCase();
+        if (name.substring(0, 1) == "z")
+        {
+            replaceText(i, "Z code!");
+        }
+        else if (name.indexOf("bird") != -1)
+        {
+            replaceText(i, "BIRD!");
+        }
+        else 
+        {
+            replaceText(i, ""); // Remove formatting.
+        }
+    }
+}
+
+// All of my dragons follow a schema [Name] Adery[Male?"n":"s"], unless they're gifts. This checks if a dragon is named incorrectly.
+function genderRename()
+{
+    for (var i=0; i<dragonListBody.children.length; i+=1)
+    {
+        if (dragonListBody.children[i].children[1].innerHTML.indexOf("Aderyn") != -1 && dragonListBody.children[i].children[2].innerHTML.indexOf(">f<") != -1)
+        {
+            replaceText(i, "Rename");
+        }
+        else
+        {
+            replaceText(i, "");
+        }
+    }
+}
+
+// Checks if a dragon is cave-born or not
+//-- WORKING, LAG  BOMB
+function displayCaveBorn()
+{
+    var name;
+    for (var i=0; i<dragonListBody.children.length; i+=1)
+    {
+        if (dragonListBody.children[i].children[0].children[0].href.indexOf("https") == -1)
+            name = "/view/" + dragonListBody.children[i].children[0].children[0].href.substring(25);
+        else
+            name = "/view/" + dragonListBody.children[i].children[0].children[0].href.substring(26);
+        $.ajax({
+            async: false,
+            type: 'GET',
+            url: name,
+            success: function(data) {
+            if (data.indexOf("View Lineage") != -1 && data.indexOf("Mother: ") != -1 && data.indexOf("Father: ") != -1)
+                replaceText(i, "");
+            else
+                replaceText(i, "CB");
+        }});
+        /*
+        $.get(name, null, function(text) 
+        { 
+            if (text.indexOf("View Lineage") != -1 && text.indexOf("Mother: ") != -1 && text.indexOf("Father: ") != -1)
+                replaceText(i, "");
+            else
+                replaceText(i, "CB");
+        })   */  
+    }
+}
+
+addSelector();
+buildColumn();
+displayCode(); // As a default
+
+
+require(["jquery"],function($) {
+	$("#disp").change(function() {
+		switch(parseInt(this.value)) 
+        {
+            case 0: displayCode(); break;
+            case 1: displaySpecialCode(); break;
+            case 2: genderRename(); break;
+            case 3: displayCaveBorn(); break;
+            default: displayCode(); break;
+        }
+	});
+});
